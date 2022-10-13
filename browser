@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# WeBER: Web Browser Engineering in Ruby
+#
+# Robert Haines
+#
+# Public Domain
+
+require 'rubygems'
+require 'bundler/setup'
+
+require_relative 'lib/weber'
+
+puts WeBER::Browser.load(ARGV[0])

@@ -11,7 +11,7 @@ require_relative 'connection'
 module WeBER
   class Browser
     def self.load(uri)
-      status, headers, body = Connection.request(uri)
+      status, _headers, body = Connection.request(uri)
       show(body) if status == 200
     end
 

@@ -8,4 +8,4 @@
 
 module WeBER; end
 
-require_relative 'weber/uri'
+require_relative 'weber/browser'
