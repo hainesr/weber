@@ -6,6 +6,7 @@
 #
 # Public Domain
 
+require 'openssl'
 require 'socket'
 require 'stringio'
 
@@ -15,10 +16,11 @@ require_relative 'util'
 module WeBER
   class Connection
     def initialize(host, port: nil, ssl: false)
-      port ||= (ssl ? 433 : 80)
+      port ||= (ssl ? 443 : 80)
       @host = host
+      @ssl = ssl
 
-      @socket = TCPSocket.open(@host, port)
+      @socket = create_socket(port)
     end
 
     def self.request(uri)
@@ -39,7 +41,24 @@ module WeBER
       request(:get, path)
     end
 
+    def ssl?
+      @ssl
+    end
+
     private
+
+    def create_socket(port)
+      tcp = TCPSocket.open(@host, port)
+      return tcp unless ssl?
+
+      context = OpenSSL::SSL::SSLContext.new
+      context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      socket = OpenSSL::SSL::SSLSocket.new(tcp, context)
+      socket.connect
+
+      socket
+    end
 
     def request(method, path)
       request_string =
@@ -48,14 +67,13 @@ module WeBER
           "GET #{path} HTTP/1.0\r\nHost: #{@host}\r\n\r\n"
         end
 
-      @socket.send(request_string, 0)
+      @socket.syswrite(request_string)
 
       response = StringIO.new
       loop do
-        data = @socket.recv(512)
-        break if data.empty?
-
-        response << data
+        response << @socket.sysread(512)
+      rescue EOFError
+        break
       end
 
       response.rewind
