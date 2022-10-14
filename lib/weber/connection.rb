@@ -15,6 +15,13 @@ require_relative 'util'
 
 module WeBER
   class Connection
+    REQUEST_HEADERS = [
+      'HTTP/1.1',
+      'Host: %<host>s',
+      'Connection: close',
+      'User-Agent: Web Browser Engineering in Ruby (WeBER)'
+    ].freeze
+
     def initialize(host, port: nil, ssl: false)
       port ||= (ssl ? 443 : 80)
       @host = host
@@ -64,7 +71,7 @@ module WeBER
       request_string =
         case method
         when :get
-          "GET #{path} HTTP/1.0\r\nHost: #{@host}\r\n\r\n"
+          "GET #{path} #{request_headers}\r\n\r\n"
         end
 
       @socket.syswrite(request_string)
@@ -78,6 +85,10 @@ module WeBER
 
       response.rewind
       Util.parse_response(response)
+    end
+
+    def request_headers
+      format(REQUEST_HEADERS.join("\r\n"), host: @host)
     end
   end
 end
