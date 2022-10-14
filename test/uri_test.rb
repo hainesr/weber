@@ -12,32 +12,38 @@ require 'weber/uri'
 
 class URITest < Minitest::Test
   def setup
+    @file  = 'file'
     @https = 'https'
     @http  = 'http'
     @host  = 'example.org'
     @port  = 8080
     @path  = '/this/is/a/path'
 
+    @file_uri  = WeBER::URI.new("#{@file}://#{@path}")
     @https_uri = WeBER::URI.new("#{@https}://#{@host}#{@path}")
     @http_uri  = WeBER::URI.new("#{@http}://#{@host}:#{@port}#{@path}")
   end
 
   def test_scheme
+    assert_equal(@file, @file_uri.scheme)
     assert_equal(@https, @https_uri.scheme)
     assert_equal(@http, @http_uri.scheme)
   end
 
   def test_host
+    assert_nil(@file_uri.host)
     assert_equal(@host, @https_uri.host)
     assert_equal(@host, @http_uri.host)
   end
 
   def test_path
+    assert_equal(@path, @file_uri.path)
     assert_equal(@path, @https_uri.path)
     assert_equal(@path, @http_uri.path)
   end
 
   def test_port
+    assert_nil(@file_uri.port)
     assert_nil(@https_uri.port)
     assert_equal(@port, @http_uri.port)
   end
