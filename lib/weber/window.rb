@@ -19,6 +19,7 @@ module WeBER
     def initialize
       root = TkRoot.new
       root.bind('Down') { scroll_down }
+      root.bind('Up') { scroll_up }
       @canvas = TkCanvas.new(root) do
         width(WIDTH)
         height(HEIGHT)
@@ -43,6 +44,12 @@ module WeBER
 
     def scroll_down
       @scroll += SCROLL_STEP
+      draw
+    end
+
+    def scroll_up
+      @scroll -= SCROLL_STEP
+      @scroll = 0 if @scroll.negative?
       draw
     end
 
