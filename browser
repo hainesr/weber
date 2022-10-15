@@ -12,4 +12,7 @@ require 'bundler/setup'
 
 require_relative 'lib/weber'
 
-puts WeBER::Browser.load(ARGV[0])
+DEFAULT_FILE = ::File.expand_path('README.md', __dir__)
+
+uri = ARGV[0] || "file://#{DEFAULT_FILE}"
+puts WeBER::Browser.load(uri)
