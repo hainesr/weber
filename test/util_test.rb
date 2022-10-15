@@ -28,14 +28,14 @@ class UtilTest < Minitest::Test
     'location' => 'https://browser.engineering/index.html'
   }.freeze
 
-  def test_parse_response_status
-    assert_equal(200, WeBER::Util.parse_response_status(STATUS_200))
-    assert_equal(301, WeBER::Util.parse_response_status(STATUS_301))
+  def test_parse_http_response_status
+    assert_equal(200, WeBER::Util.parse_http_response_status(STATUS_200))
+    assert_equal(301, WeBER::Util.parse_http_response_status(STATUS_301))
   end
 
-  def test_parse_response_ok
+  def test_http_parse_response_ok
     response = StringIO.new(RESPONSE_200)
-    status, headers, body = WeBER::Util.parse_response(response)
+    status, headers, body = WeBER::Util.parse_http_response(response)
 
     assert_equal(200, status)
     headers.each do |header, value|

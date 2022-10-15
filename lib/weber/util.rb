@@ -10,8 +10,8 @@ module WeBER
   module Util
     module_function
 
-    def parse_response(response)
-      status = parse_response_status(response.readline)
+    def parse_http_response(response)
+      status = parse_http_response_status(response.readline)
 
       headers = {}
       loop do
@@ -25,7 +25,7 @@ module WeBER
       [status, headers, response.read]
     end
 
-    def parse_response_status(status_line)
+    def parse_http_response_status(status_line)
       match = /HTTP.+(\d\d\d)/.match(status_line)
       match[1].to_i
     end
