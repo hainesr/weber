@@ -12,6 +12,8 @@ module WeBER
   class Window
     WIDTH  = 800
     HEIGHT = 600
+    HSTEP  = 13
+    VSTEP  = 18
     SCROLL_STEP = 100
 
     def initialize
@@ -25,22 +27,40 @@ module WeBER
       @scroll = 0
     end
 
-    def draw(display_list = @display_list)
-      @display_list ||= display_list
+    def draw(text = nil)
+      @display_list = layout(text) unless text.nil?
       @canvas.delete('all')
 
       @display_list.each do |x, y, c|
+        break if y > @scroll + HEIGHT # Stop drawing at the bottom of the page.
+        next if y + VSTEP < @scroll   # Don't draw about the top of the page.
+
         @canvas.create('text', x, y - @scroll, text: c)
       end
     end
+
+    private
 
     def scroll_down
       @scroll += SCROLL_STEP
       draw
     end
 
-    def width
-      WIDTH
+    def layout(text)
+      x = HSTEP
+      y = VSTEP
+      display_list = []
+
+      text.each_char do |c|
+        display_list << [x, y, c]
+        x += HSTEP
+        if x > WIDTH - HSTEP
+          x = HSTEP
+          y += VSTEP
+        end
+      end
+
+      display_list
     end
   end
 end
