@@ -12,8 +12,6 @@ module WeBER
   class Window
     WIDTH  = 800
     HEIGHT = 600
-    HSTEP  = 13
-    VSTEP  = 18
 
     def initialize
       root = TkRoot.new
@@ -24,18 +22,14 @@ module WeBER
       @canvas.pack
     end
 
-    def draw(text)
-      cursor_x = HSTEP
-      cursor_y = VSTEP
-
-      text.each_char do |c|
-        @canvas.create('text', cursor_x, cursor_y, text: c)
-        cursor_x += HSTEP
-        if cursor_x > WIDTH - HSTEP
-          cursor_x = HSTEP
-          cursor_y += VSTEP
-        end
+    def draw(display_list)
+      display_list.each do |x, y, c|
+        @canvas.create('text', x, y, text: c)
       end
+    end
+
+    def width
+      WIDTH
     end
   end
 end

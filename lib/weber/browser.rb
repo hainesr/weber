@@ -12,6 +12,9 @@ require_relative 'window'
 
 module WeBER
   class Browser
+    HSTEP  = 13
+    VSTEP  = 18
+
     def initialize
       @window = Window.new
     end
@@ -22,7 +25,7 @@ module WeBER
       response = connection.request(uri)
 
       if response.success?
-        @window.draw(lex(response.body))
+        @window.draw(layout(lex(response.body)))
       elsif response.redirect?
         new_uri = response.headers['location']
         load(new_uri)
@@ -32,6 +35,23 @@ module WeBER
     end
 
     private
+
+    def layout(text)
+      x = HSTEP
+      y = VSTEP
+      display_list = []
+
+      text.each_char do |c|
+        display_list << [x, y, c]
+        x += HSTEP
+        if x > @window.width - HSTEP
+          x = HSTEP
+          y += VSTEP
+        end
+      end
+
+      display_list
+    end
 
     def lex(html)
       buf = +''
