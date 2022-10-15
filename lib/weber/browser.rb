@@ -15,7 +15,15 @@ module WeBER
       uri = URI.new(uri.to_s)
       connection = Adapters.adapter_for_uri(uri)
       response = connection.request(uri)
-      show(response.body) if response.success?
+
+      if response.success?
+        show(response.body)
+      elsif response.redirect?
+        new_uri = response.headers['location']
+        load(new_uri)
+      else
+        "Status: #{response.status}"
+      end
     end
 
     def self.show(html)
