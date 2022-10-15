@@ -45,6 +45,7 @@ Style/DocumentDynamicEvalDefinition:
 # Force ruby19 style hash keys, but be consistent within a hash.
 Style/HashSyntax:
   EnforcedStyle: ruby19_no_mixed_keys
+  EnforcedShorthandSyntax: never
 
 # Enforce %w notation in the library code, but be less strict in tests.
 Style/WordArray:
