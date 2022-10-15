@@ -52,6 +52,12 @@ module WeBER
       display_list = []
 
       text.each_char do |c|
+        if c == "\n"
+          x = HSTEP
+          y += VSTEP
+          next
+        end
+
         display_list << [x, y, c]
         x += HSTEP
         if x > WIDTH - HSTEP
