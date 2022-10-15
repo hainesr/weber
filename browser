@@ -15,4 +15,6 @@ require_relative 'lib/weber'
 DEFAULT_FILE = ::File.expand_path('README.md', __dir__)
 
 uri = ARGV[0] || "file://#{DEFAULT_FILE}"
-puts WeBER::Browser.load(uri)
+browser = WeBER::Browser.new
+browser.load(uri)
+Tk.mainloop

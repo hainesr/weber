@@ -8,16 +8,21 @@
 
 require_relative 'adapters'
 require_relative 'uri'
+require_relative 'window'
 
 module WeBER
   class Browser
-    def self.load(uri)
+    def initialize
+      @window = Window.new
+    end
+
+    def load(uri)
       uri = URI.new(uri.to_s)
       connection = Adapters.adapter_for_uri(uri)
       response = connection.request(uri)
 
       if response.success?
-        show(response.body)
+        @window.draw(lex(response.body))
       elsif response.redirect?
         new_uri = response.headers['location']
         load(new_uri)
@@ -26,7 +31,9 @@ module WeBER
       end
     end
 
-    def self.show(html)
+    private
+
+    def lex(html)
       buf = +''
       in_tag = false
 

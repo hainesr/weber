@@ -8,6 +8,8 @@
 
 source 'https://rubygems.org'
 
+gem 'tk', '~> 0.4.0'
+
 group :development do
   gem 'minitest', '~> 5.16.0'
   gem 'rake', '~> 13.0.0'
