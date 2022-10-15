@@ -20,6 +20,7 @@ module WeBER
       root = TkRoot.new
       root.bind('Down') { scroll_down }
       root.bind('Up') { scroll_up }
+      root.bind('MouseWheel') { |event| scroll_wheel(event) }
       @canvas = TkCanvas.new(root) do
         width(WIDTH)
         height(HEIGHT)
@@ -51,6 +52,10 @@ module WeBER
       @scroll -= SCROLL_STEP
       @scroll = 0 if @scroll.negative?
       draw
+    end
+
+    def scroll_wheel(event)
+      event.wheel_delta.negative? ? scroll_down : scroll_up
     end
 
     def layout(text)
