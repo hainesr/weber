@@ -6,13 +6,16 @@
 #
 # Public Domain
 
-require_relative 'connection'
+require_relative 'adapters'
+require_relative 'uri'
 
 module WeBER
   class Browser
     def self.load(uri)
-      status, _headers, body = Connection.request(uri)
-      show(body) if status == 200
+      uri = URI.new(uri.to_s)
+      connection = Adapters.adapter_for_uri(uri)
+      response = connection.request(uri)
+      show(response.body) if response.status == 200
     end
 
     def self.show(html)
