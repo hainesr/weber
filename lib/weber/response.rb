@@ -22,5 +22,29 @@ module WeBER
       status, headers, body = Util.parse_http_response(response)
       new(status: status, headers: headers, body: body)
     end
+
+    def client_error?
+      @status < 500 && @status >= 400
+    end
+
+    def error?
+      client_error? || server_error?
+    end
+
+    def informational?
+      @status < 200
+    end
+
+    def redirect?
+      @status < 400 && @status >= 300
+    end
+
+    def server_error?
+      @status < 600 && @status >= 500
+    end
+
+    def success?
+      @status < 300 && @status >= 200
+    end
   end
 end

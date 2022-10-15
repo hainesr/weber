@@ -32,6 +32,20 @@ class ResponseTest < Minitest::Test
     response = WeBER::Response.from_http(StringIO.new(RESPONSE_200))
 
     assert_equal(200, response.status)
+    assert_predicate(response, :success?)
+
+    response.headers.each do |header, value|
+      assert_equal(RESPONSE_HEADERS[header], value)
+    end
+    assert_equal(RESPONSE_BODY, response.body)
+  end
+
+  def test_http_response_moved
+    response = WeBER::Response.from_http(StringIO.new(RESPONSE_301))
+
+    assert_equal(301, response.status)
+    assert_predicate(response, :redirect?)
+
     response.headers.each do |header, value|
       assert_equal(RESPONSE_HEADERS[header], value)
     end

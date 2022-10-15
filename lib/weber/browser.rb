@@ -15,7 +15,7 @@ module WeBER
       uri = URI.new(uri.to_s)
       connection = Adapters.adapter_for_uri(uri)
       response = connection.request(uri)
-      show(response.body) if response.status == 200
+      show(response.body) if response.success?
     end
 
     def self.show(html)
