@@ -27,19 +27,18 @@ module WeBER
       end
       @canvas.pack
       @scroll = 0
-      @font = TkFont.new(family: 'Times New Roman', size: 16)
     end
 
     def draw(text = nil)
       @display_list = layout(text) unless text.nil?
       @canvas.delete('all')
 
-      @display_list.each do |x, y, word|
+      @display_list.each do |x, y, font, word|
         break if y > @scroll + HEIGHT # Stop drawing at the bottom of the page.
         next if y + VSTEP < @scroll   # Don't draw about the top of the page.
 
         @canvas.create(
-          'text', x, y - @scroll, font: @font, text: word, anchor: 'nw'
+          'text', x, y - @scroll, font: font, text: word, anchor: 'nw'
         )
       end
     end
@@ -64,28 +63,48 @@ module WeBER
     def layout(tokens) # rubocop:disable Metrics
       x = HSTEP
       y = VSTEP
+      size = 16
+      weight = 'normal'
+      slant = 'roman'
       display_list = []
 
-      newline = @font.metrics('linespace') * 1.25
-      space = @font.measure(' ')
+      tokens.each do |token| # rubocop:disable Metrics
+        if token.text?
+          font = FontCache.font(size, weight, slant)
+          newline = font.metrics('linespace') * 1.25
 
-      tokens.each do |token|
-        next unless token.text?
-
-        token.content.split("\n").each do |line|
-          line.split.each do |word|
-            width = @font.measure(word)
+          token.content.split.each do |word|
+            width = font.measure(word)
             if x + width > WIDTH - HSTEP
               x = HSTEP
               y += newline
             end
 
-            display_list << [x, y, word]
-            x += width + space
+            display_list << [x, y, font, word]
+            x += width + font.measure(' ')
           end
-
-          x = HSTEP
-          y += newline
+        else
+          case token.content
+          when 'i'
+            slant = 'italic'
+          when '/i'
+            slant = 'roman'
+          when 'b'
+            weight = 'bold'
+          when '/b'
+            weight = 'normal'
+          when 'small'
+            size -= 2
+          when '/small'
+            size += 2
+          when 'large'
+            size += 4
+          when '/large'
+            size -= 4
+          when '/p'
+            x = HSTEP
+            y += VSTEP
+          end
         end
       end
 
