@@ -91,5 +91,21 @@ module WeBER
 
       display_list
     end
+
+    module FontCache
+      @fonts = {}
+
+      def self.font(size, weight, slant)
+        key = [size, weight, slant]
+
+        unless @fonts.key?(key)
+          @fonts[key] = TkFont.new(
+            family: 'Times New Roman', size: size, weight: weight, slant: slant
+          )
+        end
+
+        @fonts[key]
+      end
+    end
   end
 end
