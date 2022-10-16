@@ -27,17 +27,20 @@ module WeBER
       end
       @canvas.pack
       @scroll = 0
+      @font = TkFont.new(family: 'Times New Roman', size: 16)
     end
 
     def draw(text = nil)
       @display_list = layout(text) unless text.nil?
       @canvas.delete('all')
 
-      @display_list.each do |x, y, c|
+      @display_list.each do |x, y, word|
         break if y > @scroll + HEIGHT # Stop drawing at the bottom of the page.
         next if y + VSTEP < @scroll   # Don't draw about the top of the page.
 
-        @canvas.create('text', x, y - @scroll, text: c)
+        @canvas.create(
+          'text', x, y - @scroll, font: @font, text: word, anchor: 'nw'
+        )
       end
     end
 
@@ -58,24 +61,27 @@ module WeBER
       event.wheel_delta.negative? ? scroll_down : scroll_up
     end
 
-    def layout(text)
+    def layout(text) # rubocop:disable Metrics/AbcSize
       x = HSTEP
       y = VSTEP
       display_list = []
 
-      text.each_char do |c|
-        if c == "\n"
-          x = HSTEP
-          y += VSTEP
-          next
-        end
+      newline = @font.metrics('linespace') * 1.25
+      space = @font.measure(' ')
 
-        display_list << [x, y, c]
-        x += HSTEP
-        if x > WIDTH - HSTEP
-          x = HSTEP
-          y += VSTEP
+      text.split("\n").each do |line|
+        line.split.each do |word|
+          width = @font.measure(word)
+          if x + width > WIDTH - HSTEP
+            x = HSTEP
+            y += newline
+          end
+
+          display_list << [x, y, word]
+          x += width + space
         end
+        x = HSTEP
+        y += newline
       end
 
       display_list
