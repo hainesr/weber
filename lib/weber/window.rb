@@ -61,7 +61,7 @@ module WeBER
       event.wheel_delta.negative? ? scroll_down : scroll_up
     end
 
-    def layout(text) # rubocop:disable Metrics/AbcSize
+    def layout(tokens) # rubocop:disable Metrics
       x = HSTEP
       y = VSTEP
       display_list = []
@@ -69,19 +69,24 @@ module WeBER
       newline = @font.metrics('linespace') * 1.25
       space = @font.measure(' ')
 
-      text.split("\n").each do |line|
-        line.split.each do |word|
-          width = @font.measure(word)
-          if x + width > WIDTH - HSTEP
-            x = HSTEP
-            y += newline
+      tokens.each do |token|
+        next unless token.text?
+
+        token.content.split("\n").each do |line|
+          line.split.each do |word|
+            width = @font.measure(word)
+            if x + width > WIDTH - HSTEP
+              x = HSTEP
+              y += newline
+            end
+
+            display_list << [x, y, word]
+            x += width + space
           end
 
-          display_list << [x, y, word]
-          x += width + space
+          x = HSTEP
+          y += newline
         end
-        x = HSTEP
-        y += newline
       end
 
       display_list

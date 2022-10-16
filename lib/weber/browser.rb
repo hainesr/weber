@@ -7,6 +7,7 @@
 # Public Domain
 
 require_relative 'adapters'
+require_relative 'token'
 require_relative 'uri'
 require_relative 'window'
 
@@ -34,20 +35,27 @@ module WeBER
     private
 
     def lex(html)
+      tokens = []
       buf = +''
       in_tag = false
 
       html.each_char do |c|
-        if c == '<'
+        case c
+        when '<'
           in_tag = true
-        elsif c == '>'
+          tokens << Token.text(buf) unless buf.empty?
+          buf = +''
+        when '>'
           in_tag = false
+          tokens << Token.tag(buf)
+          buf = +''
         else
-          buf << c unless in_tag
+          buf << c
         end
       end
 
-      buf
+      tokens << Token.text(buf) unless in_tag || buf.empty?
+      tokens
     end
   end
 end
