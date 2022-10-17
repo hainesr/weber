@@ -9,12 +9,12 @@
 require_relative 'adapters'
 require_relative 'token'
 require_relative 'uri'
-require_relative 'window'
+require_relative 'gui/window'
 
 module WeBER
   class Browser
     def initialize
-      @window = Window.new
+      @window = GUI::Window.new
     end
 
     def load(uri)
