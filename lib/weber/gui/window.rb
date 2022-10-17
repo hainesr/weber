@@ -8,7 +8,7 @@
 
 require 'tk'
 
-require_relative 'font_cache'
+require_relative 'layout'
 
 module WeBER
   module GUI
@@ -28,7 +28,7 @@ module WeBER
       end
 
       def draw(text = nil)
-        @display_list = layout(text) unless text.nil?
+        @display_list = Layout.layout(text) unless text.nil?
         @canvas.delete('all')
 
         @display_list.each do |x, y, font, word|
@@ -56,57 +56,6 @@ module WeBER
 
       def scroll_wheel(event)
         event.wheel_delta.negative? ? scroll_down : scroll_up
-      end
-
-      def layout(tokens) # rubocop:disable Metrics
-        x = LAYOUT_HSTEP
-        y = LAYOUT_VSTEP
-        size = 16
-        weight = 'normal'
-        slant = 'roman'
-        display_list = []
-
-        tokens.each do |token| # rubocop:disable Metrics
-          if token.text?
-            font = FontCache.font(size, weight, slant)
-            newline = font.metrics('linespace') * 1.25
-
-            token.content.split.each do |word|
-              width = font.measure(word)
-              if x + width > WINDOW_WIDTH - LAYOUT_HSTEP
-                x = LAYOUT_HSTEP
-                y += newline
-              end
-
-              display_list << [x, y, font, word]
-              x += width + font.measure(' ')
-            end
-          else
-            case token.content
-            when 'i'
-              slant = 'italic'
-            when '/i'
-              slant = 'roman'
-            when 'b'
-              weight = 'bold'
-            when '/b'
-              weight = 'normal'
-            when 'small'
-              size -= 2
-            when '/small'
-              size += 2
-            when 'large'
-              size += 4
-            when '/large'
-              size -= 4
-            when '/p'
-              x = LAYOUT_HSTEP
-              y += LAYOUT_VSTEP
-            end
-          end
-        end
-
-        display_list
       end
     end
   end
