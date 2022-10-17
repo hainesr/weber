@@ -13,12 +13,6 @@ require_relative 'font_cache'
 module WeBER
   module GUI
     class Window
-      WIDTH  = 800
-      HEIGHT = 600
-      HSTEP  = 13
-      VSTEP  = 18
-      SCROLL_STEP = 100
-
       def initialize
         root = TkRoot.new
         root.bind('Down') { scroll_down }
@@ -26,8 +20,8 @@ module WeBER
         root.bind('MouseWheel') { |event| scroll_wheel(event) }
         root.bind('Escape') { Tk.exit }
         @canvas = TkCanvas.new(root) do
-          width(WIDTH)
-          height(HEIGHT)
+          width(WINDOW_WIDTH)
+          height(WINDOW_HEIGHT)
         end
         @canvas.pack
         @scroll = 0
@@ -38,8 +32,8 @@ module WeBER
         @canvas.delete('all')
 
         @display_list.each do |x, y, font, word|
-          break if y > @scroll + HEIGHT # Stop drawing at the bottom of the page.
-          next if y + VSTEP < @scroll   # Don't draw above the top of the page.
+          break if y > @scroll + WINDOW_HEIGHT # Stop drawing at the bottom of the page.
+          next if y + LAYOUT_VSTEP < @scroll   # Don't draw above the top of the page.
 
           @canvas.create(
             'text', x, y - @scroll, font: font, text: word, anchor: 'nw'
@@ -65,8 +59,8 @@ module WeBER
       end
 
       def layout(tokens) # rubocop:disable Metrics
-        x = HSTEP
-        y = VSTEP
+        x = LAYOUT_HSTEP
+        y = LAYOUT_VSTEP
         size = 16
         weight = 'normal'
         slant = 'roman'
@@ -79,8 +73,8 @@ module WeBER
 
             token.content.split.each do |word|
               width = font.measure(word)
-              if x + width > WIDTH - HSTEP
-                x = HSTEP
+              if x + width > WINDOW_WIDTH - LAYOUT_HSTEP
+                x = LAYOUT_HSTEP
                 y += newline
               end
 
@@ -106,8 +100,8 @@ module WeBER
             when '/large'
               size -= 4
             when '/p'
-              x = HSTEP
-              y += VSTEP
+              x = LAYOUT_HSTEP
+              y += LAYOUT_VSTEP
             end
           end
         end

@@ -9,7 +9,7 @@
 require_relative 'adapters'
 require_relative 'token'
 require_relative 'uri'
-require_relative 'gui/window'
+require_relative 'gui'
 
 module WeBER
   class Browser
