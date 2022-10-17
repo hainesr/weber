@@ -36,7 +36,7 @@ module WeBER
 
       @display_list.each do |x, y, font, word|
         break if y > @scroll + HEIGHT # Stop drawing at the bottom of the page.
-        next if y + VSTEP < @scroll   # Don't draw about the top of the page.
+        next if y + VSTEP < @scroll   # Don't draw above the top of the page.
 
         @canvas.create(
           'text', x, y - @scroll, font: font, text: word, anchor: 'nw'
