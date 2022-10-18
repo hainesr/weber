@@ -7,7 +7,7 @@
 # Public Domain
 
 require_relative 'adapters'
-require_relative 'token'
+require_relative 'html_parser'
 require_relative 'uri'
 require_relative 'gui'
 
@@ -23,39 +23,14 @@ module WeBER
       response = connection.request(uri)
 
       if response.success?
-        @window.draw(lex(response.body))
+        doc_tree = HTMLParser.parse(response.body)
+        @window.draw(doc_tree)
       elsif response.redirect?
         new_uri = response.headers['location']
         load(new_uri)
       else
         "Status: #{response.status}"
       end
-    end
-
-    private
-
-    def lex(html)
-      tokens = []
-      buf = +''
-      in_tag = false
-
-      html.each_char do |c|
-        case c
-        when '<'
-          in_tag = true
-          tokens << Token.text(buf) unless buf.empty?
-          buf = +''
-        when '>'
-          in_tag = false
-          tokens << Token.tag(buf)
-          buf = +''
-        else
-          buf << c
-        end
-      end
-
-      tokens << Token.text(buf) unless in_tag || buf.empty?
-      tokens
     end
   end
 end

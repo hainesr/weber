@@ -27,8 +27,8 @@ module WeBER
         @scroll = 0
       end
 
-      def draw(text = nil)
-        @display_list = Layout.layout(text) unless text.nil?
+      def draw(tree = nil)
+        @display_list = Layout.layout(tree) unless tree.nil?
         @canvas.delete('all')
 
         @display_list.each do |x, y, font, word|

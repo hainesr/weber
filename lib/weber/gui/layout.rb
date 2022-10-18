@@ -22,47 +22,58 @@ module WeBER
 
       module_function
 
-      def layout(tokens) # rubocop:disable Metrics
-        current_line = []
-
-        tokens.each do |token| # rubocop:disable Metrics
-          if token.text?
-            text(token, current_line)
-            next
-          end
-
-          case token.content
-          when 'i'
-            @font_slant = 'italic'
-          when '/i'
-            @font_slant = 'roman'
-          when 'b'
-            @font_weight = 'bold'
-          when '/b'
-            @font_weight = 'normal'
-          when 'small'
-            @font_size -= 2
-          when '/small'
-            @font_size += 2
-          when 'large'
-            @font_size += 4
-          when '/large'
-            @font_size -= 4
-          when 'br', 'br /'
-            flush(current_line)
-          when '/p'
-            flush(current_line)
-            @y_pos += LAYOUT_VSTEP
-          end
-        end
-        flush(current_line)
+      def layout(tree)
+        traverse(tree)
 
         @display_list
       end
 
-      def text(token, line)
+      def traverse(node, current_line = [])
+        if node.text?
+          text(node, current_line)
+        else
+          open_tag(node, current_line)
+          node.children.each { |child| traverse(child, current_line) }
+          close_tag(node, current_line)
+        end
+      end
+
+      def open_tag(tag, current_line)
+        case tag.content
+        when 'i'
+          @font_slant = 'italic'
+        when 'b'
+          @font_weight = 'bold'
+        when 'small'
+          @font_size -= 2
+        when 'large'
+          @font_size += 4
+        when 'br'
+          flush(current_line)
+        end
+      end
+
+      def close_tag(tag, current_line)
+        case tag.content
+        when 'i'
+          @font_slant = 'roman'
+        when 'b'
+          @font_weight = 'normal'
+        when 'small'
+          @font_size += 2
+        when 'large'
+          @font_size -= 4
+        when 'p'
+          flush(current_line)
+          @y_pos += LAYOUT_VSTEP
+        when 'body'
+          flush(current_line)
+        end
+      end
+
+      def text(text, line)
         font = FontCache.font(@font_size, @font_weight, @font_slant)
-        token.content.split.each do |word|
+        text.content.split.each do |word|
           width = font.measure(word)
           flush(line) if @x_pos + width > WINDOW_WIDTH - LAYOUT_HSTEP
 

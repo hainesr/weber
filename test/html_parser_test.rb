@@ -1,0 +1,37 @@
+# frozen_string_literal: true
+
+# WeBER: Web Browser Engineering in Ruby
+#
+# Robert Haines
+#
+# Public Domain
+
+require_relative 'test_helper'
+
+require 'weber/html_parser'
+
+class HTMLParserTest < Minitest::Test
+  def test_node_bad_type
+    assert_raises(ArgumentError) do
+      WeBER::HTMLParser::Node.new(:wrong, 'parent', 'content')
+    end
+  end
+
+  def test_node_tag
+    tag = WeBER::HTMLParser::Node.tag('parent', 'b', 'attributes')
+
+    assert_equal('parent', tag.parent)
+    assert_equal('b', tag.content)
+    assert_empty(tag.children)
+    assert_predicate(tag, :tag?)
+  end
+
+  def test_node_text
+    text = WeBER::HTMLParser::Node.text('parent', 'content')
+
+    assert_equal('parent', text.parent)
+    assert_equal('content', text.content)
+    assert_empty(text.children)
+    assert_predicate(text, :text?)
+  end
+end
