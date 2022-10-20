@@ -32,7 +32,7 @@ module WeBER
           buf = +''
         when '>'
           in_tag = false
-          add_tag(buf)
+          add_tag(buf) unless buf.start_with?('!--')
           buf = +''
         else
           buf << c

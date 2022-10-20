@@ -45,4 +45,10 @@ class HTMLParserTest < Minitest::Test
     tree = tree.children[0]
     assert_equal('Test', tree.content)
   end
+
+  def test_parser_comment
+    tree = WeBER::HTMLParser.parse('<!-- comment -->')
+    assert_equal('html', tree.content)
+    assert_empty(tree.children)
+  end
 end
