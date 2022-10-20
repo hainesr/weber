@@ -34,4 +34,15 @@ class HTMLParserTest < Minitest::Test
     assert_empty(text.children)
     assert_predicate(text, :text?)
   end
+
+  def test_parser_implicit_tags
+    tree = WeBER::HTMLParser.parse('Test')
+    assert_equal('html', tree.content)
+
+    tree = tree.children[0]
+    assert_equal('body', tree.content)
+
+    tree = tree.children[0]
+    assert_equal('Test', tree.content)
+  end
 end

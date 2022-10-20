@@ -8,6 +8,10 @@
 
 module WeBER
   module HTMLParser
+    HEAD_TAGS = %w[
+      base basefont bgsound noscript link meta title style script
+    ].freeze
+
     VOID_TAGS = %w[
       area base br col embed hr img input link meta param source track wbr
     ].freeze
@@ -43,6 +47,7 @@ module WeBER
       return if tag.start_with?('!')
 
       tag, attributes = attributes(tag)
+      add_implicit_tags(tag)
       if tag.start_with?('/')
         return if @unfinished.length == 1
 
@@ -63,9 +68,26 @@ module WeBER
     def add_text(text)
       return if text.strip.empty?
 
+      add_implicit_tags
       parent = @unfinished[-1]
       node = Node.text(parent, text)
       parent.children << node
+    end
+
+    def add_implicit_tags(tag = nil) # rubocop:disable Metrics
+      implicit_head_markers = %w[head body /html]
+      loop do
+        open_tags = @unfinished.map(&:content)
+        if open_tags.empty? && tag != 'html'
+          add_tag('html')
+        elsif open_tags == ['html'] && !implicit_head_markers.include?(tag)
+          HEAD_TAGS.include?(tag) ? add_tag('head') : add_tag('body')
+        elsif open_tags == %w[html head] && !(HEAD_TAGS + ['/head']).include?(tag)
+          add_tag('/head')
+        else
+          break
+        end
+      end
     end
 
     def attributes(text)
