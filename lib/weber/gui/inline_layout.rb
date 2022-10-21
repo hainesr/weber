@@ -10,6 +10,7 @@ require 'tk'
 
 require_relative 'font_cache'
 require_relative 'layout'
+require_relative 'painters/rectangle'
 require_relative 'painters/text'
 
 module WeBER
@@ -40,7 +41,12 @@ module WeBER
       end
 
       def paint
-        @display_list.map do |x, y, font, text|
+        bg =
+          if @node.tag? && @node.content == 'pre'
+            [Painters::Rectangle.new(@x, @y, @x + @width, @y + @height, 'gray')]
+          end || []
+
+        bg + @display_list.map do |x, y, font, text|
           Painters::Text.new(x, y, font, text)
         end
       end

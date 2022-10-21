@@ -11,18 +11,19 @@ require_relative 'painter'
 module WeBER
   module GUI
     module Painters
-      class Text < Painter
-        def initialize(left, top, font, text)
-          @left = left
-          @font = font
-          @text = text
+      class Rectangle < Painter
+        def initialize(left, top, right, bottom, colour)
+          super(top, bottom)
 
-          super(top, top + @font.metrics('linespace'))
+          @left = left
+          @right = right
+          @colour = colour
         end
 
         def paint(canvas, scroll)
           canvas.create(
-            'text', @left, @top - scroll, font: @font, text: @text, anchor: 'nw'
+            'rectangle', @left, @top - scroll, @right, @bottom - scroll,
+            width: 0, fill: @colour
           )
         end
       end
