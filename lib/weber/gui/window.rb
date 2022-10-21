@@ -29,13 +29,11 @@ module WeBER
         @display_list = tree.paint unless tree.nil?
         @canvas.delete('all')
 
-        @display_list.each do |x, y, font, word|
-          break if y > @scroll + WINDOW_HEIGHT # Stop drawing at the bottom of the page.
-          next if y + LAYOUT_VSTEP < @scroll   # Don't draw above the top of the page.
+        @display_list.each do |element|
+          break if element.top > @scroll + WINDOW_HEIGHT # Stop drawing at the bottom of the page.
+          next if element.bottom < @scroll               # Don't draw above the top of the page.
 
-          @canvas.create(
-            'text', x, y - @scroll, font: font, text: word, anchor: 'nw'
-          )
+          element.paint(@canvas, @scroll)
         end
       end
 

@@ -10,6 +10,7 @@ require 'tk'
 
 require_relative 'font_cache'
 require_relative 'layout'
+require_relative 'painters/text'
 
 module WeBER
   module GUI
@@ -39,7 +40,9 @@ module WeBER
       end
 
       def paint
-        @display_list
+        @display_list.map do |x, y, font, text|
+          Painters::Text.new(x, y, font, text)
+        end
       end
 
       private
