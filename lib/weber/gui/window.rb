@@ -40,7 +40,8 @@ module WeBER
       private
 
       def scroll_down
-        @scroll += SCROLL_STEP
+        max_y = @display_list[-1].bottom - WINDOW_HEIGHT
+        @scroll = [@scroll + SCROLL_STEP, max_y].min unless max_y.negative?
         draw
       end
 
