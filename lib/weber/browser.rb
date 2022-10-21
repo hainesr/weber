@@ -10,6 +10,7 @@ require_relative 'adapters'
 require_relative 'html_parser'
 require_relative 'uri'
 require_relative 'gui'
+require_relative 'gui/document_layout'
 
 module WeBER
   class Browser
@@ -24,7 +25,8 @@ module WeBER
 
       if response.success?
         doc_tree = HTMLParser.parse(response.body)
-        @window.draw(doc_tree)
+        layout = GUI::DocumentLayout.new(doc_tree)
+        @window.draw(layout)
       elsif response.redirect?
         new_uri = response.headers['location']
         load(new_uri)

@@ -8,8 +8,6 @@
 
 require 'tk'
 
-require_relative 'layout'
-
 module WeBER
   module GUI
     class Window
@@ -28,7 +26,7 @@ module WeBER
       end
 
       def draw(tree = nil)
-        @display_list = Layout.layout(tree) unless tree.nil?
+        @display_list = tree.paint unless tree.nil?
         @canvas.delete('all')
 
         @display_list.each do |x, y, font, word|
