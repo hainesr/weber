@@ -41,9 +41,10 @@ module WeBER
       end
 
       def paint
+        bgcolor = @node.style.fetch('background-color', 'transparent')
         bg =
-          if @node.tag? && @node.content == 'pre'
-            [Painters::Rectangle.new(@x, @y, @x + @width, @y + @height, 'gray')]
+          if bgcolor != 'transparent'
+            [Painters::Rectangle.new(@x, @y, @x + @width, @y + @height, bgcolor)]
           end || []
 
         bg + @display_list.map do |x, y, font, text|
