@@ -6,6 +6,8 @@
 #
 # Public Domain
 
+require_relative 'css_parser'
+
 module WeBER
   module HTMLParser
     HEAD_TAGS = %w[
@@ -126,13 +128,14 @@ module WeBER
 
       attr_reader :attributes, :children, :content, :parent, :type
 
-      def initialize(type, parent, content, attributes = nil)
+      def initialize(type, parent, content, attributes = {})
         raise ArgumentError, "Unrecognised type: '#{type}'." unless TYPES.include?(type)
 
         @type = type
         @parent = parent
         @content = content
         @attributes = attributes
+        @style = nil
         @children = []
       end
 
@@ -149,6 +152,18 @@ module WeBER
           @content.inspect
         else
           "<#{@content}>".inspect
+        end
+      end
+
+      def style
+        return @style unless @style.nil?
+
+        @style = {}
+        pairs = CSSParser.new(@attributes['style']).body
+        return @style if pairs.empty?
+
+        pairs.each do |key, value|
+          @style[key] = value
         end
       end
 

@@ -26,6 +26,19 @@ class HTMLParserTest < Minitest::Test
     assert_predicate(tag, :tag?)
   end
 
+  def test_node_style
+    attributes = {
+      'charset' => 'utf-8',
+      'style' => 'background-color:lightblue'
+    }
+
+    tag = WeBER::HTMLParser::Node.tag('parent', 'b', {})
+    assert_empty(tag.style)
+
+    tag = WeBER::HTMLParser::Node.tag('parent', 'b', attributes)
+    assert_equal('lightblue', tag.style['background-color'])
+  end
+
   def test_node_text
     text = WeBER::HTMLParser::Node.text('parent', 'content')
 
