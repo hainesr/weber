@@ -8,12 +8,12 @@
 
 require_relative 'test_helper'
 
-require 'weber/css_parser'
+require 'weber/parsers/css'
 
 class CSSParserTest < Minitest::Test
   def test_whitespace
     spaces = " \n\r\t  "
-    parser = WeBER::CSSParser.new(spaces)
+    parser = WeBER::Parsers::CSS.new(spaces)
 
     parser.whitespace
     assert_equal(spaces.length, parser.instance_variable_get(:@index))
@@ -21,17 +21,17 @@ class CSSParserTest < Minitest::Test
 
   def test_word
     words = '#fi%r.st1-|second'
-    parser = WeBER::CSSParser.new(words)
+    parser = WeBER::Parsers::CSS.new(words)
     assert_equal('#fi%r.st1-', parser.word)
 
     no_words = '|!@£$'
-    parser = WeBER::CSSParser.new(no_words)
+    parser = WeBER::Parsers::CSS.new(no_words)
     assert_raises(RuntimeError) { parser.word }
   end
 
   def test_literal
     literal = ':'
-    parser = WeBER::CSSParser.new(literal)
+    parser = WeBER::Parsers::CSS.new(literal)
 
     parser.literal(':')
     assert_equal(1, parser.instance_variable_get(:@index))
@@ -41,7 +41,7 @@ class CSSParserTest < Minitest::Test
 
   def test_pair
     property = 'Key : Value'
-    parser = WeBER::CSSParser.new(property)
+    parser = WeBER::Parsers::CSS.new(property)
 
     assert_equal(['key', 'Value'], parser.pair)
   end
@@ -49,7 +49,7 @@ class CSSParserTest < Minitest::Test
   def test_ignore_until
     text = 'word;word|word!word'
     chars = %w[; | !]
-    parser = WeBER::CSSParser.new(text)
+    parser = WeBER::Parsers::CSS.new(text)
 
     chars.each do |literal|
       assert_equal(literal, parser.ignore_until(chars))
@@ -59,7 +59,7 @@ class CSSParserTest < Minitest::Test
 
   def test_body
     body = "background-color:lightblue;key:value ;\n;ERROR!;Property:default"
-    parser = WeBER::CSSParser.new(body)
+    parser = WeBER::Parsers::CSS.new(body)
 
     assert_equal(
       {
@@ -72,7 +72,7 @@ class CSSParserTest < Minitest::Test
   end
 
   def test_nil_css
-    parser = WeBER::CSSParser.new(nil)
+    parser = WeBER::Parsers::CSS.new(nil)
 
     parser.whitespace
     assert_raises(RuntimeError) { parser.word }
@@ -84,10 +84,10 @@ class CSSParserTest < Minitest::Test
 
   def test_parse
     css = 'pre { background-color: gray; }'
-    parser = WeBER::CSSParser.new(css)
+    parser = WeBER::Parsers::CSS.new(css)
     rules = parser.parse
 
-    assert_instance_of(WeBER::CSSParser::TagSelector, rules[0][0])
+    assert_instance_of(WeBER::Parsers::CSS::TagSelector, rules[0][0])
     assert_equal({ 'background-color' => 'gray' }, rules[0][1])
   end
 end

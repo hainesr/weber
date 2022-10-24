@@ -7,10 +7,10 @@
 # Public Domain
 
 require_relative 'adapters'
-require_relative 'html_parser'
-require_relative 'uri'
 require_relative 'gui'
 require_relative 'gui/document_layout'
+require_relative 'parsers/html'
+require_relative 'uri'
 
 module WeBER
   class Browser
@@ -24,7 +24,7 @@ module WeBER
       response = connection.request(uri)
 
       if response.success?
-        doc_tree = HTMLParser.new(response.body).parse
+        doc_tree = Parsers::HTML.new(response.body).parse
         layout = GUI::DocumentLayout.new(doc_tree)
         @window.draw(layout)
       elsif response.redirect?

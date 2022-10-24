@@ -8,17 +8,17 @@
 
 require_relative 'test_helper'
 
-require 'weber/html_parser'
+require 'weber/parsers/html'
 
 class HTMLParserTest < Minitest::Test
   def test_node_bad_type
     assert_raises(ArgumentError) do
-      WeBER::HTMLParser::Node.new(:wrong, 'parent', 'content')
+      WeBER::Parsers::HTML::Node.new(:wrong, 'parent', 'content')
     end
   end
 
   def test_node_tag
-    tag = WeBER::HTMLParser::Node.tag('parent', 'b', 'attributes')
+    tag = WeBER::Parsers::HTML::Node.tag('parent', 'b', 'attributes')
 
     assert_equal('parent', tag.parent)
     assert_equal('b', tag.content)
@@ -32,15 +32,15 @@ class HTMLParserTest < Minitest::Test
       'style' => 'background-color:lightblue'
     }
 
-    tag = WeBER::HTMLParser::Node.tag('parent', 'b', {})
+    tag = WeBER::Parsers::HTML::Node.tag('parent', 'b', {})
     assert_empty(tag.style)
 
-    tag = WeBER::HTMLParser::Node.tag('parent', 'b', attributes)
+    tag = WeBER::Parsers::HTML::Node.tag('parent', 'b', attributes)
     assert_equal('lightblue', tag.style['background-color'])
   end
 
   def test_node_text
-    text = WeBER::HTMLParser::Node.text('parent', 'content')
+    text = WeBER::Parsers::HTML::Node.text('parent', 'content')
 
     assert_equal('parent', text.parent)
     assert_equal('content', text.content)
@@ -49,7 +49,7 @@ class HTMLParserTest < Minitest::Test
   end
 
   def test_parser_implicit_tags
-    parser = WeBER::HTMLParser.new('Test')
+    parser = WeBER::Parsers::HTML.new('Test')
     tree = parser.parse
     assert_equal('html', tree.content)
 
@@ -61,7 +61,7 @@ class HTMLParserTest < Minitest::Test
   end
 
   def test_parser_comment
-    parser = WeBER::HTMLParser.new('<!-- comment -->')
+    parser = WeBER::Parsers::HTML.new('<!-- comment -->')
     tree = parser.parse
     assert_equal('html', tree.content)
     assert_empty(tree.children)
