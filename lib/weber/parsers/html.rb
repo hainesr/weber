@@ -48,10 +48,30 @@ module WeBER
         end
 
         add_text(buf) unless in_tag || buf.empty?
-        finish
+        tree = finish
+
+        initialize_css_rules(tree)
+
+        tree
       end
 
       private
+
+      def initialize_css_rules(node) # rubocop:disable Metrics/AbcSize
+        node.children.each do |child|
+          next unless child.content == 'head'
+
+          child.children.each do |tag|
+            next unless tag.content == 'link' && tag.attributes['rel'] == 'stylesheet'
+
+            uri = URI.new(tag.attributes['href']).resolve_against(@base)
+            connection = Adapters.adapter_for_uri(uri)
+            response = connection.request(uri)
+
+            @default_css_rules += CSS.new(response.body).parse if response.success?
+          end
+        end
+      end
 
       def add_tag(tag) # rubocop:disable Metrics/AbcSize
         return if tag.start_with?('!')
