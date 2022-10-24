@@ -11,6 +11,8 @@ require_relative 'css'
 module WeBER
   module Parsers
     class HTML
+      BROWSER_CSS = ::File.join(::File.expand_path(__dir__), 'browser.css')
+
       HEAD_TAGS = %w[
         base basefont bgsound noscript link meta title style script
       ].freeze
@@ -22,6 +24,7 @@ module WeBER
       def initialize(html)
         @html = html
         @unfinished = []
+        @default_css_rules = CSS.new(::File.read(BROWSER_CSS)).parse
       end
 
       def parse
