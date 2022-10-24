@@ -24,6 +24,10 @@ module WeBER
       end
     end
 
+    def relative_path?
+      !@path.start_with?('/')
+    end
+
     private
 
     def init_data(uri)

@@ -83,4 +83,11 @@ class URITest < Minitest::Test
       assert_nil(urir.__send__(part))
     end
   end
+
+  def test_relative_path
+    assert_predicate(WeBER::URI.new(@rel_path), :relative_path?)
+    refute_predicate(WeBER::URI.new(@path), :relative_path?)
+    refute_predicate(@file_uri, :relative_path?)
+    refute_predicate(@https_uri, :relative_path?)
+  end
 end
