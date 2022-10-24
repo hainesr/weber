@@ -57,7 +57,7 @@ module WeBER
     def body
       pairs = {}
 
-      while @index < @css.length
+      while @index < @css.length && @css[@index] != '}'
         begin
           property, value = pair
           pairs[property] = value
@@ -65,7 +65,7 @@ module WeBER
           literal(';')
           whitespace
         rescue RuntimeError
-          why = ignore_until([';'])
+          why = ignore_until([';', '}'])
           break unless why == ';'
 
           literal(';')
@@ -74,6 +74,73 @@ module WeBER
       end
 
       pairs
+    end
+
+    def selector
+      out = TagSelector.new(word.downcase)
+      whitespace
+
+      while @index < @css.length && @css[@index] != '{'
+        tag = word
+        descendant = TagSelector.new(tag.downcase)
+        out = DescendantSelector.new(out, descendant)
+        whitespace
+      end
+
+      out
+    end
+
+    def parse
+      rules = []
+
+      while @index < @css.length
+        begin
+          whitespace
+          slctr = selector
+          literal('{')
+          whitespace
+          bdy = body
+          literal('}')
+          rules << [slctr, bdy]
+        rescue RuntimeError
+          why = ignore_until(['}'])
+          break unless why == '}'
+
+          literal('}')
+          whitespace
+        end
+      end
+
+      rules
+    end
+
+    class TagSelector
+      def initialize(tag)
+        @tag = tag
+      end
+
+      def matches?(node)
+        node.tag? && (@tag == @node.content)
+      end
+    end
+
+    class DescendantSelector
+      def initialize(ancestor, descendant)
+        @ancestor = ancestor
+        @descendant = descendant
+      end
+
+      def matches?(node)
+        return false unless @descendant.matches?(node)
+
+        until node.parent.nil?
+          return true if @ancestor.matches?(node.parent)
+
+          node = node.parent
+        end
+
+        false
+      end
     end
   end
 end

@@ -81,4 +81,13 @@ class CSSParserTest < Minitest::Test
     parser.ignore_until([';'])
     assert_empty(parser.body)
   end
+
+  def test_parse
+    css = 'pre { background-color: gray; }'
+    parser = WeBER::CSSParser.new(css)
+    rules = parser.parse
+
+    assert_instance_of(WeBER::CSSParser::TagSelector, rules[0][0])
+    assert_equal({ 'background-color' => 'gray' }, rules[0][1])
+  end
 end
