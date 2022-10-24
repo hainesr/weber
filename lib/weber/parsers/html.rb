@@ -21,8 +21,9 @@ module WeBER
         area base br col embed hr img input link meta param source track wbr
       ].freeze
 
-      def initialize(html)
+      def initialize(html, base)
         @html = html
+        @base = base
         @unfinished = []
         @default_css_rules = CSS.new(::File.read(BROWSER_CSS)).parse
       end
