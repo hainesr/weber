@@ -90,4 +90,44 @@ class URITest < Minitest::Test
     refute_predicate(@file_uri, :relative_path?)
     refute_predicate(@https_uri, :relative_path?)
   end
+
+  def test_resolve_against
+    uri = WeBER::URI.new(@path)
+    new_uri = uri.resolve_against(@https_uri)
+
+    refute_same(uri, new_uri)
+    assert_equal(@https, new_uri.scheme)
+    assert_equal(@host, new_uri.host)
+    assert_nil(new_uri.port)
+  end
+
+  def test_resolve_against!
+    uri = WeBER::URI.new(@rel_path)
+    uri.resolve_against!(@http_uri)
+
+    assert_equal(@http, uri.scheme)
+    assert_equal(@host, uri.host)
+    assert_equal(@port, uri.port)
+    assert_equal(@path, uri.path)
+  end
+
+  def test_resolve_against_with_full_uri
+    uri = WeBER::URI.new('https://www.example.org:8443/assets/main.css')
+    new_uri = uri.resolve_against(@https_uri)
+
+    assert_equal(@https, new_uri.scheme)
+    assert_equal('www.example.org', new_uri.host)
+    assert_equal(8443, new_uri.port)
+    assert_equal('/assets/main.css', new_uri.path)
+  end
+
+  def test_resolve_against_with_full_uri!
+    uri = WeBER::URI.new('https://www.example.org:8443/assets/main.css')
+    uri.resolve_against!(@http_uri)
+
+    assert_equal(@https, uri.scheme)
+    assert_equal('www.example.org', uri.host)
+    assert_equal(8443, uri.port)
+    assert_equal('/assets/main.css', uri.path)
+  end
 end

@@ -28,6 +28,22 @@ module WeBER
       !@path.start_with?('/')
     end
 
+    def resolve_against(server)
+      new_uri = dup
+      new_uri.resolve_against!(server)
+
+      new_uri
+    end
+
+    def resolve_against!(server)
+      return unless @scheme.nil?
+
+      @scheme = server.scheme
+      @host = server.host
+      @port = server.port
+      @path = "/#{@path}" if relative_path?
+    end
+
     private
 
     def init_data(uri)
