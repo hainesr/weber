@@ -49,7 +49,8 @@ class HTMLParserTest < Minitest::Test
   end
 
   def test_parser_implicit_tags
-    tree = WeBER::HTMLParser.parse('Test')
+    parser = WeBER::HTMLParser.new('Test')
+    tree = parser.parse
     assert_equal('html', tree.content)
 
     tree = tree.children[0]
@@ -60,7 +61,8 @@ class HTMLParserTest < Minitest::Test
   end
 
   def test_parser_comment
-    tree = WeBER::HTMLParser.parse('<!-- comment -->')
+    parser = WeBER::HTMLParser.new('<!-- comment -->')
+    tree = parser.parse
     assert_equal('html', tree.content)
     assert_empty(tree.children)
   end

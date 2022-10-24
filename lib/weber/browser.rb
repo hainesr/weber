@@ -24,7 +24,7 @@ module WeBER
       response = connection.request(uri)
 
       if response.success?
-        doc_tree = HTMLParser.parse(response.body)
+        doc_tree = HTMLParser.new(response.body).parse
         layout = GUI::DocumentLayout.new(doc_tree)
         @window.draw(layout)
       elsif response.redirect?

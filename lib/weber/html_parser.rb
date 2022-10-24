@@ -9,7 +9,7 @@
 require_relative 'css_parser'
 
 module WeBER
-  module HTMLParser
+  class HTMLParser
     HEAD_TAGS = %w[
       base basefont bgsound noscript link meta title style script
     ].freeze
@@ -18,15 +18,16 @@ module WeBER
       area base br col embed hr img input link meta param source track wbr
     ].freeze
 
-    @unfinished = []
+    def initialize(html)
+      @html = html
+      @unfinished = []
+    end
 
-    module_function
-
-    def parse(html)
+    def parse
       buf = +''
       in_tag = false
 
-      html.each_char do |c|
+      @html.each_char do |c|
         case c
         when '<'
           in_tag = true
@@ -44,6 +45,8 @@ module WeBER
       add_text(buf) unless in_tag || buf.empty?
       finish
     end
+
+    private
 
     def add_tag(tag) # rubocop:disable Metrics/AbcSize
       return if tag.start_with?('!')
