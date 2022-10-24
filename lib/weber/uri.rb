@@ -11,15 +11,24 @@ module WeBER
     attr_reader :data, :host, :media_type, :path, :port, :scheme
 
     def initialize(uri)
-      @scheme, rest = uri.split(':', 2)
-      if @scheme == 'data'
-        @media_type, @data = rest.split(',', 2)
-      else
-        host, path = rest.delete_prefix('//').split('/', 2)
+      if uri.start_with?('data:')
+        init_data(uri)
+      elsif uri.include?('://')
+        @scheme, rest = uri.split('://')
+        host, path = rest.split('/', 2)
         @host, port = host.split(':')
         @path = "/#{path}"
         @port = port&.to_i
+      else
+        @path = uri
       end
+    end
+
+    private
+
+    def init_data(uri)
+      @scheme = 'data'
+      @media_type, @data = uri[5..].split(',', 2)
     end
   end
 end

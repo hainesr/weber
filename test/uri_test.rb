@@ -12,15 +12,16 @@ require 'weber/uri'
 
 class URITest < Minitest::Test
   def setup
-    @data  = 'data'
-    @file  = 'file'
-    @https = 'https'
-    @http  = 'http'
-    @host  = 'example.org'
-    @media = 'text/html'
-    @port  = 8080
-    @path  = '/this/is/a/path'
-    @text  = 'Hello, world!'
+    @data     = 'data'
+    @file     = 'file'
+    @https    = 'https'
+    @http     = 'http'
+    @host     = 'example.org'
+    @media    = 'text/html'
+    @port     = 8080
+    @rel_path = 'this/is/a/path'
+    @path     = "/#{@rel_path}"
+    @text     = 'Hello, world!'
 
     @data_uri  = WeBER::URI.new("#{@data}:#{@media},#{@text}")
     @file_uri  = WeBER::URI.new("#{@file}://#{@path}")
@@ -68,5 +69,18 @@ class URITest < Minitest::Test
     assert_nil(@file_uri.media_type)
     assert_nil(@https_uri.media_type)
     assert_nil(@http_uri.media_type)
+  end
+
+  def test_path_uri
+    uri  = WeBER::URI.new(@path)
+    urir = WeBER::URI.new(@rel_path)
+
+    assert_equal(@path, uri.path)
+    assert_equal(@rel_path, urir.path)
+
+    %i[data host media_type port scheme].each do |part|
+      assert_nil(uri.__send__(part))
+      assert_nil(urir.__send__(part))
+    end
   end
 end
