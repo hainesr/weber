@@ -12,6 +12,7 @@ module WeBER
   module Parsers
     class HTML
       BROWSER_CSS = ::File.join(::File.expand_path(__dir__), 'browser.css')
+      DEFAULT_CSS_RULES = CSS.new(::File.read(BROWSER_CSS)).parse
 
       HEAD_TAGS = %w[
         base basefont bgsound noscript link meta title style script
@@ -25,10 +26,9 @@ module WeBER
         @html = html
         @base = base
         @unfinished = []
-        @default_css_rules = CSS.new(::File.read(BROWSER_CSS)).parse
       end
 
-      def parse
+      def parse # rubocop:disable Metrics
         buf = +''
         in_tag = false
 
@@ -50,14 +50,31 @@ module WeBER
         add_text(buf) unless in_tag || buf.empty?
         tree = finish
 
-        initialize_css_rules(tree)
+        @css_rules = initialize_css_rules(tree)
+        apply_style(tree)
 
         tree
       end
 
       private
 
-      def initialize_css_rules(node) # rubocop:disable Metrics/AbcSize
+      def apply_style(node)
+        @css_rules.each do |selector, body|
+          next unless selector.matches?(node)
+
+          body.each do |property, value|
+            node.style[property] = value
+          end
+        end
+
+        node.style.merge!(CSS.new(node.attributes['style']).body) if node.tag?
+
+        node.children.each { |child| apply_style(child) }
+      end
+
+      def initialize_css_rules(node) # rubocop:disable Metrics
+        rules = DEFAULT_CSS_RULES.dup
+
         node.children.each do |child|
           next unless child.content == 'head'
 
@@ -68,9 +85,11 @@ module WeBER
             connection = Adapters.adapter_for_uri(uri)
             response = connection.request(uri)
 
-            @default_css_rules += CSS.new(response.body).parse if response.success?
+            rules += CSS.new(response.body).parse if response.success?
           end
         end
+
+        rules.sort_by { |selector, _body| selector.priority }
       end
 
       def add_tag(tag) # rubocop:disable Metrics/AbcSize
@@ -154,7 +173,7 @@ module WeBER
       class Node
         TYPES = %i[tag text].freeze
 
-        attr_reader :attributes, :children, :content, :parent, :type
+        attr_reader :attributes, :children, :content, :parent, :style, :type
 
         def initialize(type, parent, content, attributes = {})
           raise ArgumentError, "Unrecognised type: '#{type}'." unless TYPES.include?(type)
@@ -163,7 +182,7 @@ module WeBER
           @parent = parent
           @content = content
           @attributes = attributes
-          @style = nil
+          @style = {}
           @children = []
         end
 
@@ -180,18 +199,6 @@ module WeBER
             @content.inspect
           else
             "<#{@content}>".inspect
-          end
-        end
-
-        def style
-          return @style unless @style.nil?
-
-          @style = {}
-          pairs =  Parsers::CSS.new(@attributes['style']).body
-          return @style if pairs.empty?
-
-          pairs.each do |key, value|
-            @style[key] = value
           end
         end
 
