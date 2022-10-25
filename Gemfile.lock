@@ -33,6 +33,7 @@ GEM
     ruby-progressbar (1.11.0)
     tk (0.4.0)
     unicode-display_width (2.3.0)
+    webrick (1.7.0)
 
 PLATFORMS
   arm64-darwin-20
@@ -45,6 +46,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.15)
   rubocop-rake (~> 0.6.0)
   tk (~> 0.4.0)
+  webrick
 
 BUNDLED WITH
    2.3.7

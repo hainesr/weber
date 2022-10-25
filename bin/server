@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'webrick'
+
+root = File.expand_path(File.join('..', 'test', 'fixtures'), __dir__)
+server = WEBrick::HTTPServer.new(Port: 8000, DocumentRoot: root)
+
+trap 'INT' do
+  server.shutdown
+end
+
+server.start

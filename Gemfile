@@ -17,4 +17,5 @@ group :development do
   gem 'rubocop-minitest', '~> 0.22.2'
   gem 'rubocop-performance', '~> 1.15'
   gem 'rubocop-rake', '~> 0.6.0'
+  gem 'webrick'
 end
