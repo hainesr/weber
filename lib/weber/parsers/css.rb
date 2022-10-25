@@ -136,7 +136,7 @@ module WeBER
         end
 
         def matches?(node)
-          node.tag? && (@tag == @node.content)
+          node.tag? && (@tag == node.content)
         end
       end
 
