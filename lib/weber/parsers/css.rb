@@ -115,8 +115,23 @@ module WeBER
         rules
       end
 
-      class TagSelector
+      class Selector
+        include Comparable
+
+        attr_reader :priority
+
+        def initialize(priority)
+          @priority = priority
+        end
+
+        def <=>(other)
+          @priority <=> other.priority
+        end
+      end
+
+      class TagSelector < Selector
         def initialize(tag)
+          super(1)
           @tag = tag
         end
 
@@ -125,8 +140,9 @@ module WeBER
         end
       end
 
-      class DescendantSelector
+      class DescendantSelector < Selector
         def initialize(ancestor, descendant)
+          super(ancestor.priority + descendant.priority)
           @ancestor = ancestor
           @descendant = descendant
         end

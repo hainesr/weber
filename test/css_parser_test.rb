@@ -86,8 +86,20 @@ class CSSParserTest < Minitest::Test
     css = 'pre { background-color: gray; }'
     parser = WeBER::Parsers::CSS.new(css)
     rules = parser.parse
+    selector, body = rules[0]
 
-    assert_instance_of(WeBER::Parsers::CSS::TagSelector, rules[0][0])
-    assert_equal({ 'background-color' => 'gray' }, rules[0][1])
+    assert_instance_of(WeBER::Parsers::CSS::TagSelector, selector)
+    assert_equal({ 'background-color' => 'gray' }, body)
+  end
+
+  def test_selectors_sorting
+    ts1 = WeBER::Parsers::CSS::TagSelector.new('pre')
+    ts2 = WeBER::Parsers::CSS::TagSelector.new('pre')
+    ds1 = WeBER::Parsers::CSS::DescendantSelector.new(ts1, ts2)
+    ds2 = WeBER::Parsers::CSS::DescendantSelector.new(ds1, ts1)
+
+    assert_equal(ts1, ts2)
+    assert(ts1 < ds1)
+    assert(ds1 < ds2)
   end
 end
