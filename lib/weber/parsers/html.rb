@@ -6,14 +6,9 @@
 #
 # Public Domain
 
-require_relative 'css'
-
 module WeBER
   module Parsers
     class HTML
-      BROWSER_CSS = ::File.join(::File.expand_path(__dir__), 'browser.css')
-      DEFAULT_CSS_RULES = CSS.new(::File.read(BROWSER_CSS)).parse
-
       HEAD_TAGS = %w[
         base basefont bgsound noscript link meta title style script
       ].freeze
@@ -22,13 +17,12 @@ module WeBER
         area base br col embed hr img input link meta param source track wbr
       ].freeze
 
-      def initialize(html, base)
+      def initialize(html)
         @html = html
-        @base = base
         @unfinished = []
       end
 
-      def parse # rubocop:disable Metrics
+      def parse
         buf = +''
         in_tag = false
 
@@ -48,49 +42,10 @@ module WeBER
         end
 
         add_text(buf) unless in_tag || buf.empty?
-        tree = finish
-
-        @css_rules = initialize_css_rules(tree)
-        apply_style(tree)
-
-        tree
+        finish
       end
 
       private
-
-      def apply_style(node)
-        @css_rules.each do |selector, body|
-          next unless selector.matches?(node)
-
-          body.each do |property, value|
-            node.style[property] = value
-          end
-        end
-
-        node.style.merge!(CSS.new(node.attributes['style']).body) if node.tag?
-
-        node.children.each { |child| apply_style(child) }
-      end
-
-      def initialize_css_rules(node) # rubocop:disable Metrics
-        rules = DEFAULT_CSS_RULES.dup
-
-        node.children.each do |child|
-          next unless child.content == 'head'
-
-          child.children.each do |tag|
-            next unless tag.content == 'link' && tag.attributes['rel'] == 'stylesheet'
-
-            uri = URI.new(tag.attributes['href']).resolve_against(@base)
-            connection = Adapters.adapter_for_uri(uri)
-            response = connection.request(uri)
-
-            rules += CSS.new(response.body).parse if response.success?
-          end
-        end
-
-        rules.sort_by { |selector, _body| selector.priority }
-      end
 
       def add_tag(tag) # rubocop:disable Metrics/AbcSize
         return if tag.start_with?('!')
