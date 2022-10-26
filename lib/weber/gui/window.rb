@@ -17,10 +17,9 @@ module WeBER
         root.bind('Up') { scroll_up }
         root.bind('MouseWheel') { |event| scroll_wheel(event) }
         root.bind('Escape') { Tk.exit }
-        @canvas = TkCanvas.new(root) do
-          width(WINDOW_WIDTH)
-          height(WINDOW_HEIGHT)
-        end
+        @canvas = TkCanvas.new(
+          root, width: WINDOW_WIDTH, height: WINDOW_HEIGHT, bg: 'white'
+        )
         @canvas.pack
         @scroll = 0
       end
