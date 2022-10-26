@@ -14,6 +14,7 @@ module WeBER
       @fonts = {}
 
       def self.font(size, weight, slant)
+        slant = 'roman' if slant == 'normal'
         key = [size, weight, slant]
 
         unless @fonts.key?(key)

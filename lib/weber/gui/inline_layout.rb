@@ -19,9 +19,6 @@ module WeBER
       def initialize(node, parent, previous)
         super
 
-        @font_size = 16
-        @font_weight = 'normal'
-        @font_slant = 'roman'
         @display_list = []
       end
 
@@ -66,14 +63,6 @@ module WeBER
 
       def open_tag(tag, current_line)
         case tag.content
-        when 'i'
-          @font_slant = 'italic'
-        when 'b'
-          @font_weight = 'bold'
-        when 'small'
-          @font_size -= 2
-        when 'large'
-          @font_size += 4
         when 'br'
           flush(current_line)
         end
@@ -81,14 +70,6 @@ module WeBER
 
       def close_tag(tag, current_line)
         case tag.content
-        when 'i'
-          @font_slant = 'roman'
-        when 'b'
-          @font_weight = 'normal'
-        when 'small'
-          @font_size += 2
-        when 'large'
-          @font_size -= 4
         when 'p'
           flush(current_line)
           @cursor_y += LAYOUT_VSTEP
@@ -97,9 +78,13 @@ module WeBER
         end
       end
 
-      def text(text, line)
-        font = FontCache.font(@font_size, @font_weight, @font_slant)
-        text.content.split.each do |word|
+      def text(node, line) # rubocop:disable Metrics/AbcSize
+        size = node.style['font-size'].chomp('px').to_i
+        font = FontCache.font(
+          size, node.style['font-weight'], node.style['font-style']
+        )
+
+        node.content.split.each do |word|
           width = font.measure(word)
           flush(line) if @cursor_x + width > WINDOW_WIDTH - LAYOUT_HSTEP
 
