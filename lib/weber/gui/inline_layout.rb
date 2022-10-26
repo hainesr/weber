@@ -44,8 +44,8 @@ module WeBER
             [Painters::Rectangle.new(@x, @y, @x + @width, @y + @height, bgcolor)]
           end || []
 
-        bg + @display_list.map do |x, y, font, text|
-          Painters::Text.new(x, y, font, text)
+        bg + @display_list.map do |x, y, font, colour, text|
+          Painters::Text.new(x, y, font, colour, text)
         end
       end
 
@@ -88,7 +88,7 @@ module WeBER
           width = font.measure(word)
           flush(line) if @cursor_x + width > WINDOW_WIDTH - LAYOUT_HSTEP
 
-          line << [@cursor_x, font, word]
+          line << [@cursor_x, font, node.style['color'], word]
           @cursor_x += width + font.measure(' ')
         end
       end
@@ -99,9 +99,9 @@ module WeBER
         max_ascent, max_descent = font_limits(line)
         baseline = @cursor_y + (1.25 * max_ascent)
 
-        line.each do |x, font, word|
+        line.each do |x, font, colour, word|
           y = baseline - font.metrics('ascent')
-          @display_list << [x, y, font, word]
+          @display_list << [x, y, font, colour, word]
         end
 
         line.replace([])

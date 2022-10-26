@@ -12,9 +12,10 @@ module WeBER
   module GUI
     module Painters
       class Text < Painter
-        def initialize(left, top, font, text)
+        def initialize(left, top, font, colour, text)
           @left = left
           @font = font
+          @colour = colour
           @text = text
 
           super(top, top + @font.metrics('linespace'))
@@ -22,7 +23,8 @@ module WeBER
 
         def paint(canvas, scroll)
           canvas.create(
-            'text', @left, @top - scroll, font: @font, text: @text, anchor: 'nw'
+            'text', @left, @top - scroll,
+            font: @font, fill: @colour, text: @text, anchor: 'nw'
           )
         end
       end
